@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: artemis-broker
+  namespace: artemis
+  labels:
+    app: artemis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: artemis
+  template:
+    metadata:
+      labels:
+        app: artemis
+    spec:
+      containers:
+        - name: artemis
+          image: apache/artemis:latest
+          ports:
+            - containerPort: 61616
+              name: jms
+            - containerPort: 8161
+              name: console
+          env:
+            - name: ARTEMIS_USER
+              value: "artemis"
+            - name: ARTEMIS_PASSWORD
+              value: "artemis"
+            - name: ARTEMIS_INSTANCE
+              value: "/opt/artemis-instance"
+          volumeMounts:
+            - name: artemis-data
+              mountPath: /opt/artemis-instance/data
+            - name: broker-config
+              mountPath: /opt/artemis-instance/etc/broker.xml
+              subPath: broker.xml
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "1Gi"
+              cpu: "1"
+          livenessProbe:
+            tcpSocket:
+              port: 61616
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket:
+              port: 61616
+            initialDelaySeconds: 30
+            periodSeconds: 5
+      volumes:
+        - name: artemis-data
+          persistentVolumeClaim:
+            claimName: artemis-data
+        - name: broker-config
+          configMap:
+            name: artemis-broker-config

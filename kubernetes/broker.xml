@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="urn:activemq"
+               xmlns:xi="http://www.w3.org/2001/XInclude"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="
+                   urn:activemq https://www.apache.org/dist/activemq/activemq-artemis/2.28.0/schema/artemis-configuration.xsd
+                   urn:activemq:core https://www.apache.org/dist/activemq/activemq-artemis/2.28.0/schema/artemis-core.xsd
+               ">
+
+   <core xmlns="urn:activemq:core">
+
+      <!-- Broker name -->
+      <name>artemis-k8s</name>
+
+      <!-- Persistence -->
+      <persistence-enabled>true</persistence-enabled>
+      <journal-type>ASYNCIO</journal-type>
+      <paging-directory>/var/lib/artemis-instance/data/paging</paging-directory>
+      <bindings-directory>/var/lib/artemis-instance/data/bindings</bindings-directory>
+      <journal-directory>/var/lib/artemis-instance/data/journal</journal-directory>
+      <large-messages-directory>/var/lib/artemis-instance/data/large-messages</large-messages-directory>
+
+      <!-- Connectors -->
+      <connectors>
+         <connector name="netty-connector">
+            <factory-class>org.apache.activemq.artemis.core.remoting.impl.NettyConnectorFactory</factory-class>
+            <param key="host" value="0.0.0.0"/>
+            <param key="port" value="61616"/>
+         </connector>
+         <connector name="http-connector">
+            <factory-class>org.apache.activemq.artemis.core.remoting.impl.HttpConnectorFactory</factory-class>
+            <param key="endpoint" value="http-acceptor"/>
+            <param key="port" value="8161"/>
+            <param key="host" value="0.0.0.0"/>
+         </connector>
+      </connectors>
+
+      <!-- Acceptors -->
+      <acceptors>
+         <acceptor name="netty-acceptor">
+            <factory-class>org.apache.activemq.artemis.core.remoting.impl.NettyAcceptorFactory</factory-class>
+            <param key="protocol" value="CORE"/>
+            <param key="port" value="61616"/>
+            <param key="host" value="0.0.0.0"/>
+         </acceptor>
+         <acceptor name="http-acceptor">
+            <factory-class>org.apache.activemq.artemis.core.remoting.impl.NettyHttpServerAcceptorFactory</factory-class>
+            <param key="http.listen.port" value="8161"/>
+            <param key="host" value="0.0.0.0"/>
+         </acceptor>
+      </acceptors>
+
+      <!-- Security -->
+      <security-settings>
+         <security-setting match="#">
+            <permission type="createNonDurableQueue" roles="artemis"/>
+            <permission type="deleteNonDurableQueue" roles="artemis"/>
+            <permission type="createDurableQueue" roles="artemis"/>
+            <permission type="deleteDurableQueue" roles="artemis"/>
+            <permission type="send" roles="artemis"/>
+            <permission type="consume" roles="artemis"/>
+            <permission type="browse" roles="artemis"/>
+            <permission type="manage" roles="artemis"/>
+         </security-setting>
+      </security-settings>
+
+      <!-- Addresses en Queues -->
+      <addresses>
+         <address name="IN_Q">
+            <multicast/>
+            <anycast>
+               <queue name="IN_Q"/>
+            </anycast>
+         </address>
+      </addresses>
+
+      <!-- Cluster -->
+      <clustered>false</clustered>
+      <cluster-password>${cluster.password:CHANGE_ME}</cluster-password>
+
+      <!-- LAAG Pagina-limiet voor testen -->
+      <address-queue-settings>
+         <address-queue-setting match="#">
+            <max-size-bytes>204800</max-size-bytes>
+            <page-size-bytes>102400</page-size-bytes>
+            <page-max-cache-size>5</page-max-cache-size>
+            <max-size-messages>1000</max-size-messages>
+         </address-queue-setting>
+      </address-queue-settings>
+
+      <!-- Thread pools -->
+      <thread-pool-max-size>30</thread-pool-max-size>
+   </core>
+</configuration>

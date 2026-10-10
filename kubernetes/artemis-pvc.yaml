@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: artemis-data
+  namespace: artemis
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi  # Pas aan op basis van je behoeften
+  storageClassName: hostpath  # Pas aan aan je cluster (bv. "gp2" voor AWS, "standard" voor GKE)

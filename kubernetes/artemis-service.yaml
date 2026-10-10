@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: artemis-service
+  namespace: artemis
+spec:
+  selector:
+    app: artemis
+  ports:
+    - name: jms
+      port: 61616
+      targetPort: 61616
+    - name: console
+      port: 8161
+      targetPort: 8161
+  type: LoadBalancer  # Gebruik ClusterIP voor interne toegang, LoadBalancer voor externe toegang

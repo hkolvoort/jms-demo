@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: jms-demo
+  artemis:
+    user: artemis
+    password: artemis
+    mode: native
+    broker-url: tcp://localhost:61616
