@@ -113,9 +113,31 @@ public class MessageConfig {
                 }
             });
 
+            // Listener voor TYPE_C
+            SimpleJmsListenerEndpoint endpointC = new SimpleJmsListenerEndpoint();
+            endpointC.setId("typeC-Listener");
+            endpointC.setDestination("IN_Q");
+            endpointC.setSelector("JMSType = 'TYPE_C'");
+            endpointC.setMessageListener(message -> {
+                try {
+                    if (message instanceof TextMessage textMessage) {
+                        System.out.println("TYPE_C listener ontving: " + textMessage.getText());
+                        // Succesvolle verwerking: acknowledge het bericht
+                        message.acknowledge();
+                    } else {
+                        System.out.println("TYPE_C listener ontving niet-tekst bericht");
+//                        message.acknowledge();
+                    }
+                } catch (Exception e) {
+                    LoggerFactory.getLogger(MessageConfig.class).error("Fout in TYPE_C listener", e);
+                    // Geen acknowledge bij fout: bericht blijft op de queue
+                }
+            });
+
             // Registreer beide endpoints met de fabriek
-//            registrar.registerEndpoint(endpointA, myFactory);
-//            registrar.registerEndpoint(endpointB, myFactory);
+            registrar.registerEndpoint(endpointA, myFactory);
+            registrar.registerEndpoint(endpointB, myFactory);
+//            registrar.registerEndpoint(endpointC, myFactory);
         }
     }
 }
