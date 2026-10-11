@@ -79,14 +79,17 @@
       <cluster-password>${cluster.password:CHANGE_ME}</cluster-password>
 
       <!-- LAAG Pagina-limiet voor testen -->
-      <address-queue-settings>
-         <address-queue-setting match="#">
-            <max-size-bytes>204800</max-size-bytes>
-            <page-size-bytes>102400</page-size-bytes>
-            <page-max-cache-size>5</page-max-cache-size>
+      <address-settings>
+         <address-setting match="jms.someaddress">
+            <max-size-bytes>2048</max-size-bytes>
             <max-size-messages>1000</max-size-messages>
-         </address-queue-setting>
-      </address-queue-settings>
+            <page-size-bytes>1024</page-size-bytes>
+            <address-full-policy>PAGE</address-full-policy>
+            <page-limit-bytes>10G</page-limit-bytes>
+            <page-limit-messages>1000000</page-limit-messages>
+            <page-full-policy>FAIL</page-full-policy>
+         </address-setting>
+      </address-settings>
 
       <!-- Thread pools -->
       <thread-pool-max-size>30</thread-pool-max-size>

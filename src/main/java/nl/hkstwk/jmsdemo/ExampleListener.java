@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ExampleListener implements MessageListener {
 
-    @JmsListener(destination = "IN_Q", selector = "", containerFactory = "myFactory")
+    // @JmsListener(destination = "IN_Q", selector = "", containerFactory = "myFactory")
     public void onMessage(Message message) {
         try {
             if (message instanceof TextMessage textMessage) {

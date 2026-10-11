@@ -21,36 +21,26 @@ data:
             <bindings-directory>/var/lib/artemis-instance/data/bindings</bindings-directory>
             <journal-directory>/var/lib/artemis-instance/data/journal</journal-directory>
             <large-messages-directory>/var/lib/artemis-instance/data/large-messages</large-messages-directory>
-      
-            <connectors>
-               <connector name="netty-connector">
-                  <factory-class>org.apache.activemq.artemis.core.remoting.impl.NettyConnectorFactory</factory-class>
-                  <param key="host" value="0.0.0.0"/>
-                  <param key="port" value="61616"/>
-               </connector>
-               <connector name="http-connector">
-                  <factory-class>org.apache.activemq.artemis.core.remoting.impl.HttpConnectorFactory</factory-class>
-                  <param key="endpoint" value="http-acceptor"/>
-                  <param key="port" value="8161"/>
-                  <param key="host" value="0.0.0.0"/>
-               </connector>
-            </connectors>
+             
+             <connectors>
+                 <!-- Netty connector via de vereenvoudigde URI-syntax -->
+                 <connector name="netty-connector">tcp://0.0.0.0:61616</connector>
+             </connectors>
       
             <acceptors>
-               <acceptor name="netty-acceptor">
-                  <factory-class>org.apache.activemq.artemis.core.remoting.impl.NettyAcceptorFactory</factory-class>
-                  <param key="protocol" value="CORE"/>
-                  <param key="port" value="61616"/>
-                  <param key="host" value="0.0.0.0"/>
-               </acceptor>
-               <acceptor name="http-acceptor">
-                  <factory-class>org.apache.activemq.artemis.core.remoting.impl.NettyHttpServerAcceptorFactory</factory-class>
-                  <param key="http.listen.port" value="8161"/>
-                  <param key="host" value="0.0.0.0"/>
-               </acceptor>
+                <acceptor name="netty-acceptor">tcp://0.0.0.0:61616</acceptor>
             </acceptors>
-      
+             
             <security-settings>
+                <security-setting match="IN_Q">
+                    <permission type="createAddress" roles="amq"/>
+                    <permission type="deleteAddress" roles="amq"/>
+                    <permission type="createQueue" roles="amq"/>
+                    <permission type="deleteQueue" roles="amq"/>
+                    <permission type="send" roles="amq"/>
+                    <permission type="consume" roles="amq"/>
+                    <permission type="browse" roles="amq"/>
+                </security-setting>
                <security-setting match="#">
                   <permission type="createNonDurableQueue" roles="artemis"/>
                   <permission type="deleteNonDurableQueue" roles="artemis"/>
@@ -64,27 +54,36 @@ data:
             </security-settings>
       
             <addresses>
-               <address name="IN_Q">
-                  <multicast/>
-                  <anycast>
-                     <queue name="IN_Q"/>
-                  </anycast>
-               </address>
+              <address name="IN_Q">
+                <anycast>
+                  <queue name="IN_Q"/>
+                </anycast>
+              </address>
             </addresses>
-      
-            <clustered>false</clustered>
+   
             <cluster-password>${cluster.password:CHANGE_ME}</cluster-password>
       
-            <!-- LAGE paging-limieten voor testen -->
-            <address-queue-settings>
-               <address-queue-setting match="#">
-                  <max-size-bytes>204800</max-size-bytes>
-                  <page-size-bytes>102400</page-size-bytes>
-                  <page-max-cache-size>5</page-max-cache-size>
-                  <max-size-messages>1000</max-size-messages>
-               </address-queue-setting>
-            </address-queue-settings>
-      
-            <thread-pool-max-size>30</thread-pool-max-size>
+        <!-- We matchen hiermee absoluut ALLES om andere defaults te overrulem -->
+            <address-settings>
+                <!-- We targeten exact de queue/adresnaam uit je console -->
+                <address-setting match="IN_Q">
+                    <address-full-policy>PAGE</address-full-policy>
+                    
+                    <!-- We zetten de limiet op 10 MB (10485760 bytes). 
+                         Jouw 100 MB aan berichten zal hier direct doorheen knallen! -->
+                    <max-size-bytes>10485760</max-size-bytes>
+                    
+                    <!-- Pagina bestanden van 2 MB -->
+                    <page-size-bytes>2097152</page-size-bytes>
+                    
+                    <page-max-cache-size>5</page-max-cache-size>
+                    
+                    <auto-create-addresses>true</auto-create-addresses>
+                    <auto-create-queues>true</auto-create-queues>
+                </address-setting>
+              </address-settings>
+            
+            <!-- Zorg dat de globale broker limiet ook laag staat, bijv. 20 MB -->
+            <global-max-size>20971520</global-max-size>
          </core>
       </configuration>

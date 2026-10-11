@@ -24,10 +24,10 @@ import org.springframework.messaging.converter.MessageConverter;
 @Configuration
 @Import(JmsBeansPrinterConfig.class)
 public class MessageConfig {
-    @Bean
-    ExampleListener messageListener() {
-        return new ExampleListener();
-    }
+    // @Bean
+    // ExampleListener messageListener() {
+    //     return new ExampleListener();
+    // }
 
     @Bean // Serialize message content to json using TextMessage
     public MessageConverter jacksonJmsMessageConverter() {
@@ -96,7 +96,7 @@ public class MessageConfig {
             SimpleJmsListenerEndpoint endpointB = new SimpleJmsListenerEndpoint();
             endpointB.setId("typeB-Listener");
             endpointB.setDestination("IN_Q");
-            endpointB.setSelector("JMSType <> 'TYPE_B' OR JMSType IS NULL");
+            endpointB.setSelector("JMSType = 'TYPE_B'");
             endpointB.setMessageListener(message -> {
                 try {
                     if (message instanceof TextMessage textMessage) {
@@ -105,7 +105,7 @@ public class MessageConfig {
                         message.acknowledge();
                     } else {
                         System.out.println("TYPE_B listener ontving niet-tekst bericht");
-                        message.acknowledge();
+//                        message.acknowledge();
                     }
                 } catch (Exception e) {
                     LoggerFactory.getLogger(MessageConfig.class).error("Fout in TYPE_B listener", e);
@@ -114,8 +114,8 @@ public class MessageConfig {
             });
 
             // Registreer beide endpoints met de fabriek
-            registrar.registerEndpoint(endpointA, myFactory);
-            registrar.registerEndpoint(endpointB, myFactory);
+//            registrar.registerEndpoint(endpointA, myFactory);
+//            registrar.registerEndpoint(endpointB, myFactory);
         }
     }
 }

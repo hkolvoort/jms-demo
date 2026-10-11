@@ -29,12 +29,12 @@ spec:
             - name: ARTEMIS_PASSWORD
               value: "artemis"
             - name: ARTEMIS_INSTANCE
-              value: "/opt/artemis-instance"
+              value: "/var/lib/artemis-instance"
           volumeMounts:
             - name: artemis-data
-              mountPath: /opt/artemis-instance/data
+              mountPath: /var/lib/artemis-instance/data
             - name: broker-config
-              mountPath: /opt/artemis-instance/etc/broker.xml
+              mountPath: /var/lib/artemis-instance/etc-override/broker.xml
               subPath: broker.xml
           resources:
             requests:
